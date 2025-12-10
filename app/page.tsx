@@ -20,6 +20,31 @@ export const metadata: Metadata = {
   title: 'iDENTI-Marketing | AI-Powered SEO & Digital Marketing Agency UK & US',
   description: 'AI-powered SEO, digital marketing, and web development for ambitious businesses in London, Manchester, Stoke-on-Trent, and across the UK & US. Book your free strategy call or get a free SEO audit today!',
   keywords: 'SEO, AI marketing, web development, digital marketing, Stoke-on-Trent, London, Manchester, UK, US, free audit, strategy call, lead generation, conversion',
+  openGraph: {
+    title: 'iDENTI-Marketing | AI-Powered SEO & Digital Marketing Agency',
+    description: 'AI-powered SEO, digital marketing, and web development for ambitious businesses. Book your free strategy call today!',
+    url: 'https://www.identimarketing.com',
+    siteName: 'Identimarketing',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Identimarketing - AI-Powered Digital Marketing',
+      },
+    ],
+    locale: 'en_GB',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'iDENTI-Marketing | AI-Powered SEO & Digital Marketing',
+    description: 'AI-powered SEO, digital marketing, and web development for ambitious businesses in the UK & US.',
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: 'https://www.identimarketing.com',
+  },
   robots: 'index,follow',
 }
 
