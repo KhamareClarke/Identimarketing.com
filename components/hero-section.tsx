@@ -1,7 +1,7 @@
 "use client"
 
-import Link from "next/link"
 import { motion } from "framer-motion"
+import { useOnboarding } from "@/components/onboarding-provider"
 import { Sparkles, ArrowRight, Zap, Briefcase, Smile, Brain, MapPin } from "lucide-react"
 import { TypewriterEffect } from "@/components/typewriter-effect"
 import { Button } from "@/components/ui/button"
@@ -57,6 +57,8 @@ function AnimatedCounter({ value, suffix = "", delay = 0 }: { value: number; suf
 }
 
 export function HeroSection() {
+  const { setOpenOnboarding } = useOnboarding()
+
   return (
     <section className="relative min-h-screen flex items-start justify-center pt-16 pb-32 overflow-hidden">
       {/* Enhanced background effects */}
@@ -186,15 +188,14 @@ export function HeroSection() {
         >
           <Button
             size="lg"
+            type="button"
+            onClick={() => setOpenOnboarding(true)}
             className="group relative overflow-hidden px-16 py-7 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white text-xl font-extrabold shadow-2xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-110 hover:shadow-3xl transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300"
-            asChild
           >
-            <Link href="https://calendly.com/khamareclarke" target="_blank" rel="noopener noreferrer">
-              <span className="relative z-10 flex items-center text-xl">
-Book Your Free Strategy Call
-                <Zap className="ml-3 h-6 w-6 transition-transform group-hover:rotate-12" />
-              </span>
-            </Link>
+            <span className="relative z-10 flex items-center text-xl">
+              Book Your Free Strategy Call
+              <Zap className="ml-3 h-6 w-6 transition-transform group-hover:rotate-12" />
+            </span>
           </Button>
         </motion.div>
 

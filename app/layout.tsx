@@ -89,6 +89,7 @@ export const metadata: Metadata = {
 }
 
 import { PagePreloader } from "@/components/page-preloader";
+import { OnboardingProvider } from "@/components/onboarding-provider";
 
 export default function RootLayout({
   children,
@@ -115,12 +116,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <AnimatedGradientBackground />
-          <FloatingElements />
-          <PagePreloader>
-            {children}
-          </PagePreloader>
-          <Toaster />
+          <OnboardingProvider>
+            <AnimatedGradientBackground />
+            <FloatingElements />
+            <PagePreloader>
+              {children}
+            </PagePreloader>
+            <Toaster />
+          </OnboardingProvider>
         </ThemeProvider>
         
         {/* Structured Data - Organization */}

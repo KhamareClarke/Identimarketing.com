@@ -8,6 +8,7 @@ import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useOnboarding } from "@/components/onboarding-provider"
 
 const navItems = [
   { name: "Services", href: "/#services" },
@@ -21,6 +22,7 @@ export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const { setOpenOnboarding } = useOnboarding()
 
   useEffect(() => {
     setMounted(true)
@@ -92,10 +94,12 @@ export function SiteHeader() {
               <span className="sr-only">Toggle theme</span>
             </Button>
           )}
-          <Button asChild className="group relative overflow-hidden px-8 py-6 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white text-sm font-extrabold shadow-xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-105 hover:shadow-2xl transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300">
-            <Link href="https://calendly.com/khamareclarke" target="_blank" rel="noopener noreferrer">
-              <span className="relative z-10">Get Started</span>
-            </Link>
+          <Button
+            type="button"
+            onClick={() => setOpenOnboarding(true)}
+            className="group relative overflow-hidden px-8 py-6 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white text-sm font-extrabold shadow-xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-105 hover:shadow-2xl transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300"
+          >
+            <span className="relative z-10">Get Started</span>
           </Button>
         </div>
         <div className="flex items-center md:hidden gap-3">
@@ -204,13 +208,12 @@ export function SiteHeader() {
                     }
                   }}
                 >
-                  <Button 
-                    asChild 
+                  <Button
+                    type="button"
+                    onClick={() => { setIsOpen(false); setOpenOnboarding(true); }}
                     className="w-full py-5 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white text-base font-extrabold shadow-xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-100 hover:shadow-2xl transition-all duration-200 border-0"
                   >
-                    <Link href="https://calendly.com/khamareclarke" target="_blank" rel="noopener noreferrer" onClick={() => setIsOpen(false)}>
-                      Get Started
-                    </Link>
+                    Get Started
                   </Button>
                 </motion.div>
               </motion.nav>

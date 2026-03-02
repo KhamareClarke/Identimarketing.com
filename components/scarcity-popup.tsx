@@ -3,9 +3,11 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Zap } from "lucide-react"
+import { useOnboarding } from "@/components/onboarding-provider"
 
 export default function ScarcityPopup() {
   const [open, setOpen] = useState(true)
+  const { setOpenOnboarding } = useOnboarding()
   const [spotsLeft, setSpotsLeft] = useState(3)
   const [mounted, setMounted] = useState(false)
 
@@ -44,10 +46,11 @@ export default function ScarcityPopup() {
         <p className="text-white/90 text-base mb-2">Secure your spot for a complimentary strategy call and get a free, expert SEO audit. See exactly how much more traffic and revenue you could be generating. Limited availability. Don't miss out!</p>
         <Button
           size="lg"
+          type="button"
+          onClick={() => { setOpen(false); setOpenOnboarding(true); }}
           className="w-full rounded-full bg-white text-primary font-extrabold text-lg hover:bg-blue-100 hover:text-blue-700 transition"
-          asChild
         >
-          <a href="https://calendly.com/khamareclarke" target="_blank" rel="noopener noreferrer">Book My Free Strategy Call</a>
+          Book My Free Strategy Call
         </Button>
         </div>
       </motion.div>

@@ -3,6 +3,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { CheckCircle, XCircle } from "lucide-react"
 import { Button } from "./ui/button"
+import { useOnboarding } from "@/components/onboarding-provider"
 
 const offers = [
   { label: "Website & App Development", value: "webdev" },
@@ -307,6 +308,7 @@ const plans: { [key: string]: Plan[] } = {
 
 export function PricingSection() {
   const [selected, setSelected] = useState("marketing")
+  const { setOpenOnboarding } = useOnboarding()
 
   return (
     <section id="pricing" className="relative py-32 sm:py-40 bg-gradient-to-b from-background to-background/90 overflow-hidden">
@@ -397,7 +399,10 @@ export function PricingSection() {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full py-4 rounded-full font-bold text-lg bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white shadow-xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-105 transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300">
+              <Button
+                className="w-full py-4 rounded-full font-bold text-lg bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white shadow-xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-105 transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300"
+                onClick={() => setOpenOnboarding(true)}
+              >
                 {plan.cta}
               </Button>
               <div className="absolute bottom-3 right-3 text-xs text-muted-foreground opacity-80">No hidden fees</div>

@@ -28,29 +28,30 @@ export function ContactSection() {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Form submitted:", formData)
-      
-      // Show success toast
+    try {
+      const res = await fetch("/api/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, source: "identimarketing" }),
+      })
+      if (!res.ok) throw new Error("Failed to send")
       toast({
         title: "Message sent!",
         description: "We'll get back to you as soon as possible.",
       })
-      
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        message: ""
+      setFormData({ name: "", email: "", phone: "", message: "" })
+    } catch {
+      toast({
+        title: "Something went wrong",
+        description: "Please try again or email us directly.",
+        variant: "destructive",
       })
+    } finally {
       setIsSubmitting(false)
-    }, 1000)
+    }
   }
 
   const containerVariants = {

@@ -16,10 +16,24 @@ export default function ShortContactForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    setTimeout(() => {
+    try {
+      const res = await fetch("/api/onboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          message: form.message,
+          source: "identimarketing",
+        }),
+      })
+      if (!res.ok) throw new Error("Failed")
       setSubmitted(true)
+    } catch {
       setLoading(false)
-    }, 1000)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {

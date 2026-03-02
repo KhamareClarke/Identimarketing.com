@@ -5,6 +5,7 @@ const nextConfig = {
   },
   images: { unoptimized: true },
   poweredByHeader: false,
+  transpilePackages: ['lucide-react'],
 };
 
 module.exports = nextConfig;

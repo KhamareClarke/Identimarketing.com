@@ -1,13 +1,14 @@
 "use client"
 
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { useOnboarding } from "@/components/onboarding-provider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 import { Sparkles, ArrowRight } from "lucide-react"
 
 export function CTASection() {
+  const { setOpenOnboarding } = useOnboarding()
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
@@ -71,11 +72,16 @@ export function CTASection() {
                 transition={{ duration: 0.5, delay: 0.4 }}
                 className="relative w-full sm:w-auto"
               >
-                <Button size="lg" className="group relative z-20 overflow-hidden px-16 py-7 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white text-xl font-extrabold shadow-2xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-110 hover:shadow-3xl transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300 w-full sm:w-auto" asChild>
-                  <Link href="https://calendly.com/khamareclarke" target="_blank" rel="noopener noreferrer" className="flex items-center">
+                <Button
+                  type="button"
+                  size="lg"
+                  onClick={() => setOpenOnboarding(true)}
+                  className="group relative z-20 overflow-hidden px-16 py-7 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white text-xl font-extrabold shadow-2xl hover:from-blue-600 hover:via-pink-500 hover:to-green-400 hover:scale-110 hover:shadow-3xl transition-all duration-200 border-0 focus:ring-4 focus:ring-blue-300 w-full sm:w-auto"
+                >
+                  <span className="flex items-center">
                     Book My Free Strategy Call
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
+                  </span>
                 </Button>
               </motion.div>
               {/* Removed overlay that could obscure button. If needed, move this behind the content with lower z-index or add to Card background only. */}
