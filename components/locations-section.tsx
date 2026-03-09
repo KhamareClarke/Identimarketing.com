@@ -4,6 +4,7 @@ import * as React from 'react'
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
@@ -90,7 +91,7 @@ export function LocationsSection() {
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-blue-500/5 to-transparent rounded-full blur-3xl"></div>
       </div>
       
-      <div className="container relative z-10 px-4 sm:px-6 md:px-8 lg:px-10">
+      <Container size="wide" className="relative z-10">
         <motion.div 
           className="text-center max-w-4xl mx-auto mb-8 sm:mb-12 md:mb-16 lg:mb-20"
           initial={{ opacity: 0, y: 20 }}
@@ -394,7 +395,7 @@ export function LocationsSection() {
             </TabsContent>
           </Tabs>
         </motion.div>
-      </div>
+      </Container>
     </section>
   )
 }

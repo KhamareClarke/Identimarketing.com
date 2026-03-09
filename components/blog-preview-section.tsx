@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { Container } from "@/components/ui/container"
 
 // Dummy blog preview data. In production, fetch from CMS or API.
 const BLOG_POSTS = [
@@ -31,7 +32,7 @@ const BLOG_POSTS = [
 export default function BlogPreviewSection() {
   return (
     <section id="insights" className="py-16 sm:py-20 bg-background">
-      <div className="container px-4 mx-auto">
+      <Container size="wide">
         <div className="text-center mb-10">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-2 font-heading bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-blue-500 to-green-400">
             Insights & Articles
@@ -70,7 +71,7 @@ export default function BlogPreviewSection() {
             View All Insights →
           </Link>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

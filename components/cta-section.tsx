@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
 import { useOnboarding } from "@/components/onboarding-provider"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { motion } from "framer-motion"
@@ -23,7 +24,7 @@ export function CTASection() {
       <div className="absolute top-20 right-[10%] w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-primary/5 rounded-full blur-3xl animate-pulse-slow"></div>
       <div className="absolute bottom-20 left-[10%] w-36 sm:w-56 md:w-72 h-36 sm:h-56 md:h-72 bg-blue-500/5 rounded-full blur-3xl animate-pulse-slow"></div>
       
-      <div className="container relative z-10 px-8 sm:px-12 lg:px-16 max-w-[90rem] mx-auto">
+      <Container size="wide" className="relative z-10">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
@@ -88,7 +89,7 @@ export function CTASection() {
             </CardContent>
           </Card>
         </motion.div>
-      </div>
+      </Container>
     </section>
   )
 }

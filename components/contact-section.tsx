@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
@@ -80,7 +81,7 @@ export function ContactSection() {
       <div className="absolute top-20 right-[10%] w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-blue-500/5 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 left-[10%] w-36 sm:w-56 md:w-72 h-36 sm:h-56 md:h-72 bg-purple-500/5 rounded-full blur-3xl"></div>
       
-      <div className="container relative z-10 px-8 sm:px-12 lg:px-16 max-w-[90rem] mx-auto">
+      <Container size="wide" className="relative z-10">
         <motion.div 
           className="text-center max-w-5xl mx-auto mb-20 sm:mb-24"
           initial={{ opacity: 0, y: 20 }}
@@ -240,7 +241,7 @@ export function ContactSection() {
             </motion.div>
           </div>
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

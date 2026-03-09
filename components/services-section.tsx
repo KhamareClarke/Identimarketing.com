@@ -10,6 +10,7 @@ import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
 
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 
 const services = [
@@ -123,7 +124,7 @@ export function ServicesSection() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-green-400/5 via-transparent to-purple-500/5 rounded-full blur-3xl"></div>
       </div>
       
-      <div className="container relative z-10 px-8 sm:px-12 lg:px-16 max-w-[90rem] mx-auto">
+      <Container size="wide" className="relative z-10">
         <motion.div 
           className="text-center max-w-5xl mx-auto mb-16 sm:mb-20"
           initial={{ opacity: 0, y: 20 }}
@@ -212,7 +213,7 @@ export function ServicesSection() {
             </motion.div>
           ))}
         </motion.div>
-      </div>
+      </Container>
     </section>
   )
 }

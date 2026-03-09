@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { Container } from "@/components/ui/container"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
@@ -57,7 +58,7 @@ export function TestimonialsSection() {
       <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-background to-transparent"></div>
       <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-background to-transparent"></div>
       
-      <div className="container relative z-10 px-8 sm:px-12 lg:px-16 max-w-[90rem] mx-auto">
+      <Container size="wide" className="relative z-10">
         <motion.div 
           className="text-center max-w-5xl mx-auto mb-20 sm:mb-24"
           initial={{ opacity: 0, y: 20 }}
@@ -121,12 +122,12 @@ export function TestimonialsSection() {
             </div>
           </Carousel>
         </motion.div>
-      </div>
       <div className="text-center mt-16">
         <a href="/case-studies" className="inline-block px-8 py-3 rounded-full font-bold bg-gradient-to-r from-pink-500 via-blue-500 to-green-400 text-white shadow-lg hover:scale-105 transition-transform duration-300">
           Read Full Case Studies →
         </a>
       </div>
+      </Container>
     </section>
   )
 }

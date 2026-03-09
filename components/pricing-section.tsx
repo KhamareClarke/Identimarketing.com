@@ -3,6 +3,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { CheckCircle, XCircle } from "lucide-react"
 import { Button } from "./ui/button"
+import { Container } from "@/components/ui/container"
 import { useOnboarding } from "@/components/onboarding-provider"
 
 const offers = [
@@ -317,7 +318,7 @@ export function PricingSection() {
         <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-gradient-to-br from-pink-500/10 to-transparent rounded-full blur-3xl animate-pulse-slow"></div>
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tr from-blue-500/10 to-transparent rounded-full blur-3xl animate-pulse-slower"></div>
       </div>
-      <div className="container relative z-10 px-8 sm:px-12 lg:px-16 max-w-[90rem] mx-auto">
+      <Container size="wide" className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -414,7 +415,7 @@ export function PricingSection() {
             </div>
           )}
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

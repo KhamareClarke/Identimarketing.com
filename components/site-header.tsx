@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
 import { cn } from "@/lib/utils"
 import { useOnboarding } from "@/components/onboarding-provider"
 
@@ -51,7 +52,7 @@ export function SiteHeader() {
         ? "bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/80 border-white/10 shadow-xl" 
         : "bg-transparent"
     )}>
-      <div className="container flex h-16 sm:h-18 items-center justify-between px-6 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+      <Container size="wide" className="flex h-16 sm:h-18 items-center justify-between">
         <Link href="/" className="flex items-center space-x-2 group">
           <span className="flex items-center gap-2">
             <img src="/logo.png" alt="IdentiMarketing Logo" className="w-8 h-8 object-contain" />
@@ -132,7 +133,7 @@ export function SiteHeader() {
             )}
           </Button>
         </div>
-      </div>
+      </Container>
       
       <AnimatePresence>
         {isOpen && (

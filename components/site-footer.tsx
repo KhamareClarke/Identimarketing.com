@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { ArrowUp, Mail, Phone } from "lucide-react"
+import { Container } from "@/components/ui/container"
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 
@@ -32,11 +33,11 @@ export function SiteFooter() {
   }
   return (
     <footer className="relative bg-background text-foreground py-16 sm:py-20 mt-16 sm:mt-20 border-t-4 border-t-transparent" style={{borderImage: 'linear-gradient(to right, #ec4899, #3b82f6, #22d3ee) 1'}}>
-      <div className="max-w-[90rem] mx-auto px-8 sm:px-12 lg:px-16">
+      <Container size="wide" className="relative">
         <div className="w-full flex flex-col md:flex-row justify-between items-start gap-12 pb-10 border-b border-gray-800">
           <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-blue-500/10 to-green-400/10 opacity-90 rounded-2xl pointer-events-none"></div>
           <div className="absolute -inset-1 rounded-2xl border-2 border-gradient-to-r from-pink-500 via-blue-500 to-green-400 opacity-60 animate-pulse-slow pointer-events-none"></div>
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-start w-full max-w-[var(--container-main)] mx-auto">
             <div className="flex flex-col items-start max-w-sm gap-3">
               <div className="flex items-center gap-3">
   <img src="/logo.png" alt="IdentiMarketing Logo" className="w-10 h-10 object-contain" />
@@ -116,7 +117,7 @@ export function SiteFooter() {
             <span className="sr-only">Back to top</span>
           </button>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

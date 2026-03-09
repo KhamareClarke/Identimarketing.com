@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useInView } from "react-intersection-observer"
+import { Container } from "@/components/ui/container"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Users, ArrowRight, Linkedin, Twitter, Github, Mail } from "lucide-react"
@@ -71,7 +72,7 @@ export function TeamSection() {
       <div className="absolute top-20 right-[10%] w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-primary/10 rounded-full blur-3xl animate-pulse-slow"></div>
       <div className="absolute bottom-20 left-[10%] w-36 sm:w-56 md:w-72 h-36 sm:h-56 md:h-72 bg-blue-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
       
-      <div className="container relative z-10 px-4 sm:px-6">
+      <Container size="wide" className="relative z-10">
         <motion.div 
           className="text-center max-w-3xl mx-auto mb-10 sm:mb-16"
           initial={{ opacity: 0, y: 20 }}
@@ -195,7 +196,7 @@ export function TeamSection() {
           <img src="/ghl-partner.svg" alt="GHL Partner" className="max-h-64 min-w-[260px] w-auto object-contain" />
           <img src="/aws-partner.svg" alt="AWS Partner" className="max-h-64 min-w-[260px] w-auto object-contain" />
         </div>
-      </div>
+      </Container>
     </section>
   )
 }

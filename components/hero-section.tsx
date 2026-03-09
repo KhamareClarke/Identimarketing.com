@@ -5,6 +5,7 @@ import { useOnboarding } from "@/components/onboarding-provider"
 import { Sparkles, ArrowRight, Zap, Briefcase, Smile, Brain, MapPin } from "lucide-react"
 import { TypewriterEffect } from "@/components/typewriter-effect"
 import { Button } from "@/components/ui/button"
+import { Container } from "@/components/ui/container"
 import { useState, useEffect } from "react"
 
 const stats = [
@@ -103,7 +104,7 @@ export function HeroSection() {
         />
       </div>
 
-      <div className="container relative z-10 px-8 sm:px-12 lg:px-16 text-center max-w-[90rem] mx-auto">
+      <Container size="wide" className="relative z-10 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -229,7 +230,7 @@ export function HeroSection() {
             </motion.div>
           ))}
         </motion.div>
-      </div>
+      </Container>
     </section>
   )
 }

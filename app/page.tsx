@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header"
 import { SiteFooter } from "@/components/site-footer"
+import { PageLayout } from "@/components/layout/page-layout"
 import { HeroSection } from "@/components/hero-section"
 import { ServicesSection } from "@/components/services-section"
 import { PricingSection } from "@/components/pricing-section"
@@ -54,7 +55,7 @@ export default function Home() {
   return (
     <>
       <CookieConsent />
-      <div className="flex min-h-screen flex-col">
+      <PageLayout>
       <SiteHeader />
       <main className="flex-1">
         <AnimatedSection direction="up"><HeroSection /></AnimatedSection>
@@ -70,7 +71,7 @@ export default function Home() {
       <SiteFooter />
       <ScarcityPopup />
       <AIChatBot />
-      </div>
+      </PageLayout>
     </>
   );
 }
