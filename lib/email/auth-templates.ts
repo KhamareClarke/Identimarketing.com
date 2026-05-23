@@ -1,8 +1,9 @@
 // =====================================================================
 // Identimarketing SaaS - Auth-flavored email templates
 //
-// Supabase Auth handles the actual verify/reset emails. These helpers
-// cover the post-verification welcome message and the team-invite email.
+// We use Supabase Auth for password reset emails, but signup verification
+// runs through our own OTP system (see /api/auth/signup + /api/auth/verify-email)
+// to give users a clean "enter the 6-digit code" experience.
 // =====================================================================
 
 import { sendMail } from '../email';
@@ -72,6 +73,34 @@ export async function sendTeamInviteEmail(opts: {
     to: opts.inviteeEmail,
     subject: `You're invited to join ${opts.workspaceName} on Identimarketing`,
     html: shell('You have been invited', body),
+  });
+}
+
+export async function sendVerificationOtpEmail(opts: {
+  email: string;
+  name: string;
+  code: string;
+  expiresInMinutes: number;
+}) {
+  const safeCode = opts.code.replace(/[^0-9]/g, '');
+  const body = `
+    <p>Hi ${opts.name || 'there'},</p>
+    <p>Use the code below to finish creating your <strong>Identimarketing</strong> account. The code expires in ${opts.expiresInMinutes} minutes.</p>
+    <div style="margin: 28px 0; text-align: center;">
+      <div style="display: inline-block; padding: 18px 28px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px;">
+        <div style="font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 36px; letter-spacing: 0.4em; font-weight: 700; color: #111827;">
+          ${safeCode}
+        </div>
+      </div>
+    </div>
+    <p style="color: #6b7280; font-size: 13px;">
+      If you didn't request this, you can ignore this email - no account will be created.
+    </p>
+  `;
+  return sendMail({
+    to: opts.email,
+    subject: `Your Identimarketing verification code: ${safeCode}`,
+    html: shell('Verify your email', body),
   });
 }
 

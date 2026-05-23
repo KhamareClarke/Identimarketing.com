@@ -55,7 +55,11 @@ export default function SignupPage() {
         setError(body?.error?.message || 'Signup failed');
         return;
       }
-      router.push(body?.needsVerification ? '/auth/verify-email?status=sent' : '/dashboard');
+      if (body?.needsVerification) {
+        router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+      } else {
+        router.push('/dashboard');
+      }
       router.refresh();
     } catch {
       setError('Something went wrong. Please try again.');

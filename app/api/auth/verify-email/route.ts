@@ -1,65 +1,176 @@
+// =====================================================================
+// POST /api/auth/verify-email
+//
+// Stage-2 of the OTP signup flow. Body: { email, code }.
+//   1. Lookup public.pending_signups for that email.
+//   2. Reject if expired or attempts >= 5.
+//   3. bcrypt.compare(code, code_hash). On miss, increment attempts.
+//   4. On match: decrypt the password and create the Supabase auth user
+//      via the admin API with email_confirm=true. Wait for the
+//      on_auth_user_created trigger to provision the profile row.
+//   5. Delete the pending row, then call signInWithPassword on the
+//      cookie-bound server client so the session cookie is set on the
+//      response - the user lands on /dashboard already signed in.
+//   6. Email a welcome message in the background.
+// =====================================================================
+
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-import { createServerClient } from '@/lib/db/client';
-import { withErrorHandler, errors } from '@/lib/error-handler';
+import { compare } from '@/lib/auth/bcrypt';
+import { decryptSecret } from '@/lib/auth/crypt';
+import { createServerClient, createServiceClient } from '@/lib/db/client';
 import { sendWelcomeEmail } from '@/lib/email/auth-templates';
+import { withErrorHandler, errors } from '@/lib/error-handler';
+import { logger } from '@/lib/logging';
+import { metrics } from '@/lib/metrics';
 
 const schema = z.object({
-  token_hash: z.string().min(1),
-  type: z.enum(['signup', 'email', 'magiclink', 'recovery', 'invite', 'email_change']).default('signup'),
+  email: z.string().email().transform((v) => v.trim().toLowerCase()),
+  code: z
+    .string()
+    .min(4)
+    .max(8)
+    .regex(/^[0-9]+$/, 'Code must be numeric'),
 });
 
-export const POST = withErrorHandler('api.auth.verify-email.POST', async (req: NextRequest) => {
-  const body = await req.json().catch(() => ({}));
-  const { token_hash, type } = schema.parse(body);
+const MAX_ATTEMPTS = 5;
 
-  const supabase = createServerClient();
-  const { data, error } = await supabase.auth.verifyOtp({ token_hash, type });
+interface PendingSignupRow {
+  id: string;
+  email: string;
+  name: string;
+  password_encrypted: string;
+  code_hash: string;
+  attempts: number;
+  expires_at: string;
+}
 
-  if (error || !data.user) {
-    throw errors.badRequest(error?.message || 'Invalid or expired verification link.');
-  }
+export const POST = withErrorHandler(
+  'api.auth.verify-email.POST',
+  async (req: NextRequest) => {
+    const body = await req.json().catch(() => ({}));
+    const { email, code } = schema.parse(body);
 
-  await supabase
-    .from('profiles')
-    .update({ email_verified_at: new Date().toISOString() })
-    .eq('id', data.user.id);
+    const admin = createServiceClient();
 
-  const name =
-    (data.user.user_metadata?.name as string | undefined) ||
-    data.user.email?.split('@')[0] ||
-    'there';
-  void sendWelcomeEmail(name, data.user.email!).catch(() => {});
+    // 1. Look up the pending row.
+    const { data: row } = await admin
+      .from('pending_signups')
+      .select('id, email, name, password_encrypted, code_hash, attempts, expires_at')
+      .eq('email', email)
+      .maybeSingle();
+    const pending = row as PendingSignupRow | null;
+    if (!pending) {
+      throw errors.badRequest('No verification in progress for that email. Please sign up again.');
+    }
 
-  return NextResponse.json({ success: true, user: { id: data.user.id, email: data.user.email } });
-});
+    // 2. Expiry / attempts.
+    if (new Date(pending.expires_at).getTime() < Date.now()) {
+      await admin.from('pending_signups').delete().eq('id', pending.id);
+      throw errors.badRequest('Verification code expired. Please request a new one.');
+    }
+    if (pending.attempts >= MAX_ATTEMPTS) {
+      await admin.from('pending_signups').delete().eq('id', pending.id);
+      throw errors.rateLimited('Too many incorrect attempts. Please request a new code.');
+    }
 
-export const GET = withErrorHandler('api.auth.verify-email.GET', async (req: NextRequest) => {
-  const url = new URL(req.url);
-  const token_hash = url.searchParams.get('token_hash');
-  const type = (url.searchParams.get('type') || 'signup') as
-    | 'signup'
-    | 'email'
-    | 'magiclink'
-    | 'recovery'
-    | 'invite'
-    | 'email_change';
-  if (!token_hash) {
-    throw errors.badRequest('Missing verification token.');
-  }
+    // 3. Compare code.
+    const match = await compare(code, pending.code_hash);
+    if (!match) {
+      const nextAttempts = pending.attempts + 1;
+      await admin
+        .from('pending_signups')
+        .update({ attempts: nextAttempts })
+        .eq('id', pending.id);
+      const remaining = Math.max(0, MAX_ATTEMPTS - nextAttempts);
+      throw errors.badRequest(
+        remaining > 0
+          ? `Incorrect code. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.`
+          : 'Too many incorrect attempts. Please request a new code.',
+      );
+    }
 
-  const supabase = createServerClient();
-  const { data, error } = await supabase.auth.verifyOtp({ token_hash, type });
+    // 4. Decrypt the password and create the Supabase auth user.
+    let password: string;
+    try {
+      password = decryptSecret(pending.password_encrypted);
+    } catch (err) {
+      logger.error('verify-email: password decrypt failed', {
+        email,
+        err: err instanceof Error ? err.message : String(err),
+      });
+      await admin.from('pending_signups').delete().eq('id', pending.id);
+      throw errors.serverError('Your signup expired. Please start over.');
+    }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || url.origin;
-  if (error || !data.user) {
-    return NextResponse.redirect(`${appUrl}/auth/verify-email?status=error&message=${encodeURIComponent(error?.message || 'Verification failed')}`);
-  }
-  await supabase
-    .from('profiles')
-    .update({ email_verified_at: new Date().toISOString() })
-    .eq('id', data.user.id);
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email: pending.email,
+      password,
+      email_confirm: true,
+      user_metadata: { name: pending.name },
+    });
+    if (createError || !created.user) {
+      logger.error('verify-email: admin.createUser failed', {
+        email,
+        err: createError?.message,
+      });
+      // Common case: account already exists (e.g. user verified in another tab).
+      const msg = createError?.message || 'Could not create your account.';
+      if (msg.toLowerCase().includes('already')) {
+        await admin.from('pending_signups').delete().eq('id', pending.id);
+        throw errors.conflict('That account already exists. Please sign in.');
+      }
+      throw errors.serverError(msg);
+    }
 
-  return NextResponse.redirect(`${appUrl}/auth/verify-email?status=success`);
-});
+    // 5. Make sure profiles is populated (the on_auth_user_created trigger
+    //    usually handles this, but we backfill defensively).
+    await admin
+      .from('profiles')
+      .upsert(
+        {
+          id: created.user.id,
+          email: pending.email,
+          name: pending.name,
+          email_verified_at: new Date().toISOString(),
+        },
+        { onConflict: 'id' },
+      );
+
+    // 6. Clean up pending row.
+    await admin.from('pending_signups').delete().eq('id', pending.id);
+
+    // 7. Sign the user in via the cookie-bound server client so the
+    //    session cookie is set on the response.
+    const supabase = createServerClient();
+    const { data: signIn, error: signInError } = await supabase.auth.signInWithPassword({
+      email: pending.email,
+      password,
+    });
+    if (signInError || !signIn.session) {
+      logger.warn('verify-email: auto signin failed', { email, err: signInError?.message });
+      // Account exists but session wasn't established. The user can sign in manually.
+      return NextResponse.json({
+        ok: true,
+        verified: true,
+        signedIn: false,
+        message: 'Verified. Please sign in to continue.',
+      });
+    }
+
+    void metrics.recordSignup(created.user.id, { source: 'web', stage: 'verified' });
+    void sendWelcomeEmail(pending.name, pending.email).catch(() => {});
+
+    return NextResponse.json({
+      ok: true,
+      verified: true,
+      signedIn: true,
+      user: {
+        id: created.user.id,
+        email: created.user.email,
+        name: pending.name,
+      },
+    });
+  },
+);

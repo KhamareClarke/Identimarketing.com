@@ -1,0 +1,31 @@
+feat(auth): custom OTP email verification + homepage CTAs
+
+Replaces Supabase Auth's magic-link verification with our own 6-digit
+code flow so users finish signup inside our UI instead of clicking an
+external email link.
+
+- Migration 008_pending_signups.sql: short-lived staging table holding
+  encrypted password + bcrypt OTP hash + attempts + expiry (15 min).
+- lib/auth/crypt.ts: AES-256-GCM encrypt/decrypt keyed off JWT_SECRET,
+  plus a uniform-random 6-digit OTP generator.
+- /api/auth/signup: generates an OTP, encrypts password, upserts the
+  pending row, emails the code (via Gmail/Nodemailer). Cooldown 30s,
+  refuses if a verified profile already exists.
+- /api/auth/verify-email: validates OTP (5 attempts max), creates the
+  Supabase auth user via admin.createUser({ email_confirm: true }),
+  back-fills profiles, then signInWithPassword on the cookie-bound
+  server client to set the session and land them on /dashboard.
+- /api/auth/resend-verification: regenerates + re-emails the OTP with
+  the same cooldown, returns a generic message to avoid email
+  enumeration.
+- /auth/signup page: redirects to /auth/verify-email?email=... after
+  the signup POST succeeds.
+- /auth/verify-email page: 6-input OTP field with paste / arrow-key /
+  backspace handling, resend button with live countdown, auto-redirect
+  to /dashboard once verified + signed-in.
+- Site header (public marketing site): adds "Sign in" + "Dashboard"
+  links in the desktop nav and mobile drawer so visitors can find the
+  SaaS without guessing the routes.
+
+Run lib/db/migrations/008_pending_signups.sql in Supabase SQL editor
+before deploying.

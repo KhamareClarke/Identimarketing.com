@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Menu, X, Moon, Sun } from "lucide-react"
+import { Menu, X, Moon, Sun, LogIn, LayoutDashboard } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useTheme } from "next-themes"
 
@@ -16,6 +16,11 @@ const navItems = [
   { name: "Testimonials", href: "/#testimonials" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/#contact" },
+]
+
+const appLinks = [
+  { name: "Sign in", href: "/auth/login", icon: LogIn },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
 ]
 
 export function SiteHeader() {
@@ -79,7 +84,17 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-4">
+          {appLinks.map((link) => (
+            <Link
+              key={link.name}
+              href={link.href}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
+            >
+              <link.icon className="h-4 w-4" />
+              {link.name}
+            </Link>
+          ))}
           {mounted && (
             <Button 
               variant="ghost" 
@@ -190,6 +205,29 @@ export function SiteHeader() {
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}
+                    </Link>
+                  </motion.div>
+                ))}
+                <div className="pt-2 border-t border-white/10 mt-2" />
+                {appLinks.map((link) => (
+                  <motion.div
+                    key={link.name}
+                    variants={{
+                      hidden: { opacity: 0, x: -10 },
+                      visible: {
+                        opacity: 1,
+                        x: 0,
+                        transition: { type: "spring", stiffness: 300, damping: 24 }
+                      }
+                    }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2 px-4 py-3 text-base font-medium rounded-lg transition-colors hover:bg-foreground/5 hover:text-primary"
+                    >
+                      <link.icon className="h-4 w-4" />
+                      {link.name}
                     </Link>
                   </motion.div>
                 ))}
