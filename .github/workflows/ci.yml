@@ -22,7 +22,6 @@ jobs:
       EMAIL_USER: ci@example.com
       EMAIL_PASS: ci-password
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-      NODE_ENV: production
 
     steps:
       - name: Checkout
@@ -35,7 +34,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # --include=dev defends against NODE_ENV=production accidentally
+        # leaking into the job env from a parent workflow or runner default.
+        run: npm ci --include=dev
 
       - name: Typecheck
         run: npm run typecheck
@@ -77,7 +78,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --include=dev
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
