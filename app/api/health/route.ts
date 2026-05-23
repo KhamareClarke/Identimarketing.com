@@ -12,6 +12,7 @@
 import { NextResponse } from 'next/server';
 
 import { createServiceClient } from '@/lib/db/client';
+import { verifyMailTransport } from '@/lib/email';
 import { withErrorHandler } from '@/lib/error-handler';
 
 export const dynamic = 'force-dynamic';
@@ -90,25 +91,40 @@ export const GET = withErrorHandler('api.health.GET', async () => {
     present: Boolean(process.env[name] && process.env[name]!.length > 0),
   }));
 
+  // SMTP probe (Gmail App Password). Skipped if EMAIL_* env not set.
+  let smtp: { ok: boolean; error?: string; skipped?: boolean } = { ok: false, skipped: true };
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    smtp = await verifyMailTransport();
+  }
+
   const missingTables = tables.filter((t) => !t.exists).map((t) => t.table);
   const missingEnv = env.filter((e) => !e.present).map((e) => e.name);
 
+  const hints: string[] = [];
+  if (missingTables.includes('pending_signups')) {
+    hints.push('Run lib/db/migrations/008_pending_signups.sql in Supabase SQL editor.');
+  } else if (missingTables.length > 0) {
+    hints.push(`Apply migrations for: ${missingTables.join(', ')}`);
+  }
+  if (smtp && !smtp.ok && !smtp.skipped) {
+    hints.push(
+      `SMTP auth failed (${smtp.error ?? 'unknown'}). Most likely a Gmail App Password with spaces or 2FA not enabled.`,
+    );
+  }
+
   return NextResponse.json({
-    ok: missingTables.length === 0 && missingEnv.length === 0,
+    ok: missingTables.length === 0 && missingEnv.length === 0 && (smtp.ok || smtp.skipped),
     supabase: {
       projectRef: deriveProjectRef(),
       url: process.env.NEXT_PUBLIC_SUPABASE_URL ?? null,
     },
     env,
     tables,
+    smtp,
     summary: {
       missingTables,
       missingEnv,
-      hint: missingTables.includes('pending_signups')
-        ? 'Run lib/db/migrations/008_pending_signups.sql in Supabase SQL editor.'
-        : missingTables.length > 0
-          ? `Apply migrations for: ${missingTables.join(', ')}`
-          : 'All required tables found.',
+      hint: hints.length > 0 ? hints.join(' ') : 'All checks passed.',
     },
   });
 });

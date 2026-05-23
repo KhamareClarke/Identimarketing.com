@@ -107,8 +107,9 @@ export const POST = withErrorHandler('api.auth.signup.POST', async (req: NextReq
     throw errors.serverError(`Could not start signup: ${upsertError.message}`);
   }
 
-  // 5. Send the email. We don't fail the request if email fails - we log
-  //    and instruct the user to use the resend button.
+  // 5. Send the email. If it fails, roll the pending row back so the user
+  //    can retry without cooldown, and surface the real underlying error so
+  //    operators can diagnose (typically a Gmail App Password mistake).
   const result = await sendVerificationOtpEmail({
     email,
     name,
@@ -117,10 +118,14 @@ export const POST = withErrorHandler('api.auth.signup.POST', async (req: NextReq
   });
   if (!result.success) {
     logger.error('signup: OTP email send failed', { email, err: result.error });
-    // Roll the pending row back so the user can retry without cooldown.
     await supabase.from('pending_signups').delete().eq('email', email);
+    const detail = result.error ?? 'Unknown SMTP error';
+    const looksLikeAuth =
+      /invalid login|authentication|535|application-specific password/i.test(detail);
     throw errors.serverError(
-      'We could not send your verification email. Please try again in a moment.',
+      looksLikeAuth
+        ? `Email auth failed: ${detail}. Check EMAIL_USER + EMAIL_PASS in Vercel env vars (Gmail App Password, no spaces).`
+        : `Could not send verification email: ${detail}`,
     );
   }
 

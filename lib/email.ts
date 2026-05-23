@@ -27,13 +27,32 @@ function requireEnv(name: string): string {
 
 function getTransporter(): Transporter {
   if (transporter) return transporter;
-  const user = requireEnv('EMAIL_USER');
-  const pass = requireEnv('EMAIL_PASS').replace(/^"|"$/g, '');
+  const user = requireEnv('EMAIL_USER').trim();
+  // Gmail App Passwords display as "abcd efgh ijkl mnop" but must be sent
+  // without spaces. We also strip any surrounding quotes that Vercel's UI
+  // sometimes adds when you paste a value.
+  const pass = requireEnv('EMAIL_PASS')
+    .replace(/^"|"$/g, '')
+    .replace(/\s+/g, '');
   transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: { user, pass },
   });
   return transporter;
+}
+
+/** Verify the SMTP transport can authenticate. Used by /api/health. */
+export async function verifyMailTransport(): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const t = getTransporter();
+    await t.verify();
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'unknown SMTP error',
+    };
+  }
 }
 
 function getNotifyEmail(): string {
