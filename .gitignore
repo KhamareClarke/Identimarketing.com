@@ -35,3 +35,11 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# transient commit / scratch files
+COMMIT_MSG.tmp
+*.commit.tmp
+
+# test artefacts
+/playwright-report
+/test-results
