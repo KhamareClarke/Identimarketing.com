@@ -5,6 +5,11 @@ export const metadata = {
   title: 'Account',
 };
 
+// Auth pages use useSearchParams() and cookies and should never be statically
+// generated. Opting the whole segment out avoids hydration races and stale
+// renders of the form between deploys.
+export const dynamic = 'force-dynamic';
+
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen flex flex-col">

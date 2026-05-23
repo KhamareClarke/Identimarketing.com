@@ -57,7 +57,7 @@ export default function ForgotPasswordPage() {
         Enter your email and we&apos;ll send you a link to reset your password.
       </p>
 
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" suppressHydrationWarning>
         <div>
           <label className="block text-sm font-medium mb-2">Email</label>
           <div className="relative">

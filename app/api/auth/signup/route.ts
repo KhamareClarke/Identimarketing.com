@@ -90,8 +90,21 @@ export const POST = withErrorHandler('api.auth.signup.POST', async (req: NextReq
       { onConflict: 'email' },
     );
   if (upsertError) {
-    logger.error('signup: pending_signups upsert failed', { email, err: upsertError.message });
-    throw errors.serverError('Could not start signup. Please try again.');
+    logger.error('signup: pending_signups upsert failed', {
+      email,
+      code: (upsertError as { code?: string }).code,
+      err: upsertError.message,
+    });
+    // Postgres `undefined_table` -> the 008 migration was never run.
+    if (
+      (upsertError as { code?: string }).code === '42P01' ||
+      /pending_signups/i.test(upsertError.message)
+    ) {
+      throw errors.serverError(
+        'Signup is not provisioned: run lib/db/migrations/008_pending_signups.sql in Supabase, then try again.',
+      );
+    }
+    throw errors.serverError(`Could not start signup: ${upsertError.message}`);
   }
 
   // 5. Send the email. We don't fail the request if email fails - we log

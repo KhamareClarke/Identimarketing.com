@@ -169,6 +169,7 @@ export default function VerifyEmailPage() {
           void submit();
         }}
         className="space-y-5"
+        suppressHydrationWarning
       >
         {!queryEmail && (
           <div>

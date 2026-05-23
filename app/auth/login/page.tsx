@@ -47,7 +47,7 @@ export default function LoginPage() {
       <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
       <p className="text-sm text-muted-foreground mb-6">Sign in to your Identimarketing account.</p>
 
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" suppressHydrationWarning>
         <div>
           <label className="block text-sm font-medium mb-2">Email</label>
           <div className="relative">
