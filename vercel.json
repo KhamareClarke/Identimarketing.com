@@ -1,0 +1,20 @@
+{
+  "crons": [
+    { "path": "/api/cron/empire-os-analysis", "schedule": "0 */4 * * *" },
+    { "path": "/api/cron/hourly", "schedule": "0 * * * *" },
+    { "path": "/api/cron/daily", "schedule": "0 8 * * *" },
+    { "path": "/api/cron/weekly", "schedule": "0 8 * * 1" },
+    { "path": "/api/cron/monthly", "schedule": "0 8 1 * *" }
+  ],
+  "functions": {
+    "app/api/empire-os/events/route.ts": { "maxDuration": 60 },
+    "app/api/empire-os/recommendations/route.ts": { "maxDuration": 60 },
+    "app/api/empire-os/approve/[id]/route.ts": { "maxDuration": 90 },
+    "app/api/cron/empire-os-analysis/route.ts": { "maxDuration": 300 },
+    "app/api/cron/hourly/route.ts": { "maxDuration": 120 },
+    "app/api/cron/daily/route.ts": { "maxDuration": 300 },
+    "app/api/cron/weekly/route.ts": { "maxDuration": 300 },
+    "app/api/cron/monthly/route.ts": { "maxDuration": 300 },
+    "app/api/billing/webhook/route.ts": { "maxDuration": 60 }
+  }
+}
