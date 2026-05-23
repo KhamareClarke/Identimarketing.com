@@ -106,6 +106,14 @@ export const POST = withErrorHandler('api.auth.signup.POST', async (req: NextReq
         'Signup is not provisioned: run lib/db/migrations/008_pending_signups.sql in Supabase, then try again.',
       );
     }
+    // PGRST205: PostgREST's schema cache is stale. The table exists in
+    // Postgres but the API layer doesn't know about it yet. The reliable
+    // fix is to restart the Supabase project from the dashboard.
+    if (errCode === 'PGRST205' || /schema cache/i.test(errMsg)) {
+      throw errors.serverError(
+        'Database schema cache is out of date. Go to Supabase Dashboard -> Project Settings -> Restart project, wait 60 seconds, then try again.',
+      );
+    }
     // RLS violation: service role should bypass RLS, but if someone
     // accidentally enabled forced RLS or revoked grants, surface it clearly.
     if (errCode === '42501' || /row-level security/i.test(errMsg)) {
