@@ -90,21 +90,30 @@ export const POST = withErrorHandler('api.auth.signup.POST', async (req: NextReq
       { onConflict: 'email' },
     );
   if (upsertError) {
+    const errCode = (upsertError as { code?: string }).code;
+    const errMsg = upsertError.message ?? 'unknown error';
     logger.error('signup: pending_signups upsert failed', {
       email,
-      code: (upsertError as { code?: string }).code,
-      err: upsertError.message,
+      code: errCode,
+      err: errMsg,
     });
-    // Postgres `undefined_table` -> the 008 migration was never run.
-    if (
-      (upsertError as { code?: string }).code === '42P01' ||
-      /pending_signups/i.test(upsertError.message)
-    ) {
+    // Only PG code 42P01 ("relation does not exist") means the migration
+    // was never run. Don't pattern-match the message - RLS violations,
+    // column mismatches etc. ALSO mention the table name and would give
+    // a false "not provisioned" diagnostic.
+    if (errCode === '42P01') {
       throw errors.serverError(
         'Signup is not provisioned: run lib/db/migrations/008_pending_signups.sql in Supabase, then try again.',
       );
     }
-    throw errors.serverError(`Could not start signup: ${upsertError.message}`);
+    // RLS violation: service role should bypass RLS, but if someone
+    // accidentally enabled forced RLS or revoked grants, surface it clearly.
+    if (errCode === '42501' || /row-level security/i.test(errMsg)) {
+      throw errors.serverError(
+        `Database refused the write: ${errMsg}. The service role key in Vercel may be wrong - it must be the secret service_role key, not the anon key.`,
+      );
+    }
+    throw errors.serverError(`Could not start signup (${errCode ?? 'no code'}): ${errMsg}`);
   }
 
   // 5. Send the email. If it fails, roll the pending row back so the user
