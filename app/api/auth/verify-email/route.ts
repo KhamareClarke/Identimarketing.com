@@ -24,6 +24,7 @@ import { sendWelcomeEmail } from '@/lib/email/auth-templates';
 import { withErrorHandler, errors } from '@/lib/error-handler';
 import { logger } from '@/lib/logging';
 import { metrics } from '@/lib/metrics';
+import { emitEmpireActivity } from '@/lib/empire-activity';
 
 const schema = z.object({
   email: z.string().email().transform((v) => v.trim().toLowerCase()),
@@ -161,6 +162,20 @@ export const POST = withErrorHandler(
 
     void metrics.recordSignup(created.user.id, { source: 'web', stage: 'verified' });
     void sendWelcomeEmail(pending.name, pending.email).catch(() => {});
+    void emitEmpireActivity({
+      event_type: 'signup',
+      user_email: created.user.email,
+      user_id: created.user.id,
+      user_name: pending.name,
+      message: 'Verified signup',
+      request: req,
+    });
+    void emitEmpireActivity({
+      event_type: 'verify_email',
+      user_email: created.user.email,
+      user_id: created.user.id,
+      request: req,
+    });
 
     return NextResponse.json({
       ok: true,
