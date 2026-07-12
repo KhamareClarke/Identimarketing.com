@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { createServiceClient } from '@/lib/db/client';
 import { sendMail } from '@/lib/email';
+import { emitFleetIngest } from '@/lib/fleet-ingest';
 import { withErrorHandler, errors } from '@/lib/error-handler';
 import { logger } from '@/lib/logging';
 
@@ -29,6 +30,12 @@ export const POST = withErrorHandler('api.onboarding.POST', async (req: NextRequ
     logger.error('onboarding insert failed', { error: error.message });
     throw errors.serverError('Failed to save onboarding data');
   }
+
+  void emitFleetIngest({
+    event_type: 'lead',
+    summary: `New contact: ${name} (${email})`,
+    payload: { name, email, phone, message, source: source || 'identimarketing' },
+  });
 
   const notifyEmail = process.env.NOTIFY_EMAIL;
   if (notifyEmail) {
